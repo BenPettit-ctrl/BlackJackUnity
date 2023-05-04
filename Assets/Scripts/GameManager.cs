@@ -10,7 +10,10 @@ public class GameManager : MonoBehaviour
     public Button standButton;
     public Button doubleButton;
     public Button betButton;
-    /*void Start()
+
+    PlayerScript playerScript;
+    PlayerScript dealerScript;
+    void Start()
     {
         dealButton.onClick.AddListener(() => DealClicked());
         hitButton.onClick.AddListener(() => HitClicked());
@@ -20,8 +23,7 @@ public class GameManager : MonoBehaviour
 
     private void DealClicked()
     {
-        Deck playingDeck = new Deck();
-        playingDeck.createFullDeck();
+        playerScript.StartHand();
     }
 
     private void HitClicked()
@@ -37,5 +39,5 @@ public class GameManager : MonoBehaviour
     private void DoubleClicked()
     {
         
-    }*/
+    }
 }

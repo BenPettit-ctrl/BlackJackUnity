@@ -14,9 +14,8 @@ public class PlayerScript : MonoBehaviour
     public GameObject[] hand;
 
     public int cardIndex = 0;
-    public int aceCount = 0;
     List<CardScript> aceList = new List<CardScript>();
-    void Start()
+    public void StartHand()
     {
         GetCard();
         GetCard();
@@ -31,7 +30,7 @@ public class PlayerScript : MonoBehaviour
         {
             aceList.Add(hand[cardIndex].GetComponent<CardScript>());   
         }
-        AceCheck();
+        //AceCheck();
         cardIndex++;
         return handValue;
     }
