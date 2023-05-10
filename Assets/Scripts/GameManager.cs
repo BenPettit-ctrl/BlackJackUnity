@@ -10,9 +10,11 @@ public class GameManager : MonoBehaviour
     public Button standButton;
     public Button doubleButton;
     public Button betButton;
+    public Text standButtonText;
+    private int standClicks = 0;
 
-    PlayerScript playerScript;
-    PlayerScript dealerScript;
+    public PlayerScript playerScript;
+    public PlayerScript dealerScript;
     void Start()
     {
         dealButton.onClick.AddListener(() => DealClicked());
@@ -23,12 +25,17 @@ public class GameManager : MonoBehaviour
 
     private void DealClicked()
     {
+        GameObject.Find("Deck").GetComponent<DeckScript>().Shuffle();
         playerScript.StartHand();
+        dealerScript.StartHand();
     }
 
     private void HitClicked()
     {
-        
+        if (playerScript.GetCard() <=11)
+        {
+            playerScript.GetCard();
+        }
     }
 
     private void StandClicked()
@@ -38,6 +45,18 @@ public class GameManager : MonoBehaviour
 
     private void DoubleClicked()
     {
-        
+        standClicks++;
+        if (standClicks > 1) Debug.Log("End function");
+        HitDealer();
+        standButtonText.text = "Call";
+    }
+
+    private void HitDealer()
+    {
+        while (dealerScript.handValue < 16 && dealerScript.cardIndex < 10)
+        {
+            dealerScript.GetCard();
+
+        }
     }
 }
