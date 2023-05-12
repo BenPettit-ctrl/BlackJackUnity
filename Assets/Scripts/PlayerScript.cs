@@ -30,8 +30,34 @@ public class PlayerScript : MonoBehaviour
         {
             aceList.Add(hand[cardIndex].GetComponent<CardScript>());   
         }
-        //AceCheck();
+        AceCheck();
         cardIndex++;
         return handValue;
+    }
+
+    public void AceCheck()
+    {
+        foreach(CardScript ace in aceList)
+        {
+            if (handValue +10 < 22 && ace.GetValue() == 1)
+            {
+                ace.SetValue(11);
+                handValue += 10;
+            }else if (handValue > 21 && ace.GetValue() == 11)
+            {
+                ace.SetValue(1);
+                handValue -= 10;
+            }
+        }
+    }
+
+    public void adjustMoney(int amount)
+    {
+        balance += amount;
+    }
+
+    public int getbalance()
+    {
+        return balance;
     }
 }
