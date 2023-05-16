@@ -33,45 +33,55 @@ public class GameManager : MonoBehaviour
         hitButton.onClick.AddListener(() => HitClicked());
         standButton.onClick.AddListener(() => StandClicked());
         doubleButton.onClick.AddListener(() => DoubleClicked());
+        betButton.onClick.AddListener(() => BetClicked());
     }
 
     private void DealClicked()
     {
+        playerScript.ResetHand();
+        dealerScript.ResetHand();
+        mainText.gameObject.SetActive(false);
         dealerHandText.gameObject.SetActive(false);
         GameObject.Find("Deck").GetComponent<DeckScript>().Shuffle();
         playerScript.StartHand();
         dealerScript.StartHand();
         handText.text = "Hand: " + playerScript.handValue.ToString();
         dealerHandText.text = "Hand: " + playerScript.handValue.ToString();
+        hideCard.GetComponent<Renderer>().enabled = true;
         dealButton.gameObject.SetActive(false);
         hitButton.gameObject.SetActive(true);
         standButton.gameObject.SetActive(true);
         standButtonText.text = "Stand";
         pot = 200;
-        betText.text = pot.ToString();
-        //playerScript.AdjustMoney(-100);
-        //bankText.text = playerScript.getBalance().ToString();
+        betText.text = "$" + pot.ToString();
+        playerScript.adjustMoney(-100);
+        bankText.text = "$" + playerScript.getBalance().ToString();
     }
 
     private void HitClicked()
     {
-        if (playerScript.GetCard() <=11)
+        if (playerScript.cardIndex <=11)
         {
             playerScript.GetCard();
+            handText.text = "Hand: " + playerScript.handValue.ToString();
+            if (playerScript.handValue > 20)
+            {
+                RoundOver();
+            }
         }
     }
 
     private void StandClicked()
     {
-        
+        standClicks++;
+        if (standClicks > 1) RoundOver();
+        HitDealer();
+        standButtonText.text = "Call";
     }
 
     private void DoubleClicked()
     {
-        standClicks++;
-        if (standClicks > 1) Debug.Log("End function");
-        HitDealer();
-        standButtonText.text = "Call";
+        
     }
 
     private void HitDealer()
@@ -79,7 +89,8 @@ public class GameManager : MonoBehaviour
         while (dealerScript.handValue < 16 && dealerScript.cardIndex < 10)
         {
             dealerScript.GetCard();
-
+            dealerHandText.text = "Hand: " + dealerScript.handValue.ToString();
+            if (dealerScript.handValue > 20) RoundOver();
         }
     }
 
@@ -98,7 +109,41 @@ public class GameManager : MonoBehaviour
         {
             mainText.text = "ALL BUST: BETS RETURNED";
             playerScript.adjustMoney(pot / 2);
+        } else if (playerBust || (!dealerBust && dealerScript.handValue > playerScript.handValue)) {
+            mainText.text = "DEALER WINS!";
+        } else if (dealerBust || playerScript.handValue > dealerScript.handValue)
+        {
+            mainText.text = "YOU WIN!";
+            playerScript.adjustMoney(pot);
+        } else if (playerScript.handValue == dealerScript.handValue)
+        {
+            mainText.text = "PUSH: BETS RETURNED";
+            playerScript.adjustMoney(pot / 2);
+        } else
+        {
+            roundOver = false;
         }
+        if (roundOver)
+        {
+            hitButton.gameObject.SetActive(false);
+            standButton.gameObject.SetActive(false);
+            dealButton.gameObject.SetActive(true);
+            doubleButton.gameObject.SetActive(false);
+            mainText.gameObject.SetActive(true);
+            dealerHandText.gameObject.SetActive(true);
+            hideCard.GetComponent<Renderer>().enabled = false;
+            bankText.text = "$" + playerScript.getBalance().ToString();
+            standClicks = 0;
+        }
+    }
 
+    private void BetClicked()
+    {
+        Text newBet = betButton.GetComponentInChildren(typeof(Text)) as Text;
+        int intBet = int.Parse(newBet.text.ToString().Remove(0, 1));
+        playerScript.adjustMoney(-intBet);
+        bankText.text = "$" + playerScript.getBalance().ToString();
+        pot += (intBet * 2);
+        betText.text = "Bet: $" + pot.ToString();
     }
 }

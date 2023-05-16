@@ -39,7 +39,7 @@ public class PlayerScript : MonoBehaviour
     {
         foreach(CardScript ace in aceList)
         {
-            if (handValue +10 < 22 && ace.GetValue() == 1)
+            if (handValue + 10 < 22 && ace.GetValue() == 1)
             {
                 ace.SetValue(11);
                 handValue += 10;
@@ -56,8 +56,20 @@ public class PlayerScript : MonoBehaviour
         balance += amount;
     }
 
-    public int getbalance()
+    public int getBalance()
     {
         return balance;
+    }
+
+    public void ResetHand()
+    {
+        for(int i = 0;i < hand.Length;i++)
+        {
+            hand[i].GetComponent<CardScript>().ResetCard();
+            hand[i].GetComponent<Renderer>().enabled = false;
+        }
+        cardIndex = 0;
+        handValue = 0;
+        aceList = new List<CardScript>();
     }
 }
