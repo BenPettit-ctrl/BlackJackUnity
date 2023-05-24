@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public Button standButton;
     public Button doubleButton;
     public Button betButton;
-    private int standClicks = 0;
+    public Button shoveButton;
     private int intBet = 0;
 
     public PlayerScript playerScript;
@@ -26,8 +26,6 @@ public class GameManager : MonoBehaviour
 
     public GameObject hideCard;
 
-    int pot = 0;
-
     void Start()
     {
         dealButton.onClick.AddListener(() => DealClicked());
@@ -35,6 +33,7 @@ public class GameManager : MonoBehaviour
         standButton.onClick.AddListener(() => StandClicked());
         doubleButton.onClick.AddListener(() => DoubleClicked());
         betButton.onClick.AddListener(() => BetClicked());
+        shoveButton.onClick.AddListener(() => ShoveClicked());
         standButton.gameObject.SetActive(false);
         hitButton.gameObject.SetActive(false);
         doubleButton.gameObject.SetActive(false);
@@ -56,15 +55,22 @@ public class GameManager : MonoBehaviour
         hideCard.GetComponent<Renderer>().enabled = true;
         dealButton.gameObject.SetActive(false);
         betButton.gameObject.SetActive(false);
+        shoveButton.gameObject.SetActive(false);
         hitButton.gameObject.SetActive(true);
         standButton.gameObject.SetActive(true);
         doubleButton.gameObject.SetActive(true);
         standButtonText.text = "Stand";
-        //betText.text = "$" + intBet.ToString();
         bankText.text = "$" + playerScript.getBalance().ToString();
-        if (intBet*2 <= playerScript.getBalance())
+        if (intBet <= playerScript.getBalance())
         {
             doubleButton.gameObject.SetActive(true);
+        } else
+        {
+            doubleButton.gameObject.SetActive(false);
+        }
+        if (dealerScript.handValue == 21 || playerScript.handValue == 21)
+        {
+            RoundOver();
         }
     }
 
@@ -129,7 +135,7 @@ public class GameManager : MonoBehaviour
             mainText.text = "Push, bets returned";
         } else if (player21)
         {
-            playerScript.adjustMoney((intBet * 3) / 2);
+            playerScript.adjustMoney(intBet +((intBet * 3) / 2));
             mainText.text = "BlackJack";
         } else if (!playerBust && (playerScript.handValue > dealerScript.handValue || dealerBust))
         {
@@ -139,51 +145,53 @@ public class GameManager : MonoBehaviour
         {
             mainText.text = "Dealer Wins";
         }
-        /*if (!playerBust && !dealerBust && !player21 && !dealer21)
-        {
-            return;
-        }
-        bool roundOver = true;
-        if (playerBust && dealerBust)
-        {
-            mainText.text = "ALL BUST: BETS RETURNED";
-            playerScript.adjustMoney(intBet);
-        } else if (player21)
-        {
-            playerScript.adjustMoney((intBet * 3)/2);
-            mainText.text = "BlackJack";
-        } else if (playerBust || (!dealerBust && dealerScript.handValue > playerScript.handValue)) 
-        {
-            mainText.text = "DEALER WINS!";
-            playerScript.adjustMoney(-intBet);
-        } else if (dealerBust || playerScript.handValue > dealerScript.handValue)
-        {
-            mainText.text = "YOU WIN!";
-            playerScript.adjustMoney(intBet*2);
-        } else if (playerScript.handValue == dealerScript.handValue)
-        {
-            mainText.text = "PUSH: BETS RETURNED";
-            playerScript.adjustMoney(intBet);
-        }*/
         hitButton.gameObject.SetActive(false);
         standButton.gameObject.SetActive(false);
         doubleButton.gameObject.SetActive(false);
         betButton.gameObject.SetActive(true);
+        shoveButton.gameObject.SetActive(true);
         mainText.gameObject.SetActive(true);
         dealerHandText.gameObject.SetActive(true);
         hideCard.GetComponent<Renderer>().enabled = false;
         bankText.text = "$" + playerScript.getBalance().ToString();
         betText.text = "BET: $" + 0;
         intBet = 0;
+        if (playerScript.getBalance() == 0)
+        {
+            mainText.text = "Game Over";
+            betButton.gameObject.SetActive(false);
+            shoveButton.gameObject.SetActive(false);
+        }
     }
 
     private void BetClicked()
     {
-        Text newBet = betButton.GetComponentInChildren(typeof(Text)) as Text;
-        //int intBet = int.Parse(newBet.text.ToString().Remove(0, 1));
-        intBet += 50;
+        if (playerScript.getBalance() < 2000)
+        {
+            intBet += 50;
+        } else if (playerScript.getBalance() < 5000)
+        {
+            intBet += 100;
+        } else if (playerScript.getBalance() < 10000)
+        {
+            intBet += 500;
+        } else
+        {
+            intBet += 1000;
+        }
         bankText.text = "$" + playerScript.getBalance().ToString();
         betText.text = "Bet: $" + intBet.ToString();
         dealButton.gameObject.SetActive(true);
+        if (intBet == playerScript.getBalance()) {
+            betButton.gameObject.SetActive(false);
+        }
+    }
+
+    private void ShoveClicked()
+    {
+        intBet = playerScript.getBalance();
+        bankText.text = "$" + playerScript.getBalance().ToString();
+        betText.text = "Bet: $" + intBet.ToString();
+        DealClicked();
     }
 }
