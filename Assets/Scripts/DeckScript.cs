@@ -4,14 +4,21 @@ using UnityEngine;
 
 public class DeckScript : MonoBehaviour
 {
+    //array of sprites used to hold all the sprites
     public Sprite[] cardSprites;
+    //array to hold all the card values
     int[] cardValues = new int[53];
     int currentIndex = 0;
+    //int to keep track of the card count
+    public static int cardCount = 0;
+    
+    //initializes card values on start of game
     void Start()
     {
         GetCardValues();
     }
 
+    //initializes all cards with their corresponding values
     void GetCardValues()
     {
         int num = 0;
@@ -27,6 +34,7 @@ public class DeckScript : MonoBehaviour
         }
     }
 
+    //shuffles the cards using a random number to replace cards
     public void Shuffle()
     {
         for (int i = cardSprites.Length - 1; i > 0; --i)
@@ -43,15 +51,25 @@ public class DeckScript : MonoBehaviour
         currentIndex = 1;
     }
 
+    //deals a card by replacing the current blank card on the screen with the card at the top of the deck
     public int DealCard(CardScript cardScript)
     {
         cardScript.SetSprite(cardSprites[currentIndex]);
         cardScript.SetValue(cardValues[currentIndex]);
         currentIndex++;
         return cardScript.GetValue();
+        //logic for counting cards
+        if (cardValues[currentIndex] == 1 || cardValues[currentIndex] > 9)
+        {
+            cardCount--;
+        } else if (cardValues[currentIndex] < 7)
+        {
+            cardCount++;
+        }
 
     }
 
+    //function to get the sprite for the blank card
     public Sprite GetCardBack()
     {
         return cardSprites[0];

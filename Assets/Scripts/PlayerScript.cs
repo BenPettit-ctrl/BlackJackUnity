@@ -4,23 +4,30 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
+    //import access to Card and Deck scripts
     public CardScript cardScript;
     public DeckScript deckScript;
 
+    //int that will hold the hand value of the player or the dealer
     public int handValue = 0;
 
+    //int that will hold the players current balance
     private int balance = 1000;
 
+    //array of gameobjects to hold the cards in the players hand
     public GameObject[] hand;
 
+    //int for holding the amount of cards in a hand and list to keep track of all aces
     public int cardIndex = 0;
     List<CardScript> aceList = new List<CardScript>();
+    //starts the hand and deals two cards
     public void StartHand()
     {
         GetCard();
         GetCard();
     }
 
+    //function for dealing a single card and enabling its renderer. Also adds ace to ace list if necessary. Then returns hand value
     public int GetCard()
     {
         int cardValue = deckScript.DealCard(hand[cardIndex].GetComponent<CardScript>());
@@ -35,6 +42,7 @@ public class PlayerScript : MonoBehaviour
         return handValue;
     }
 
+    //checks each ace in acelist to make sure the user doesn't bust while also getting the max hand value
     public void AceCheck()
     {
         foreach(CardScript ace in aceList)
@@ -51,16 +59,19 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    //takes an integer input and adjust the players balance accordingly
     public void adjustMoney(int amount)
     {
         balance += amount;
     }
 
+    //returns the players current balance
     public int getBalance()
     {
         return balance;
     }
 
+    //clears the players hand and other ints related to the current round
     public void ResetHand()
     {
         for(int i = 0;i < hand.Length;i++)
