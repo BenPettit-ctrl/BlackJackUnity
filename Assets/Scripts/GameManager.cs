@@ -15,10 +15,11 @@ public class GameManager : MonoBehaviour
     public Button shoveButton;
     public Button countButton;
     private int intBet = 0;
+    private int cardCount = 0;
 
     //initializes player and dealer objects
     public PlayerScript playerScript;
-    public PlayerScript dealerScript;
+    public DealerScript dealerScript;
 
     //initializes all text objects so they can be edited
     public TextMeshProUGUI standButtonText;
@@ -46,6 +47,8 @@ public class GameManager : MonoBehaviour
         hitButton.gameObject.SetActive(false);
         doubleButton.gameObject.SetActive(false);
         dealButton.gameObject.SetActive(false);
+        countButton.gameObject.SetActive(false);
+        countText.gameObject.SetActive(false);
     }
 
     //the function for when the deal button is clicked
@@ -55,17 +58,17 @@ public class GameManager : MonoBehaviour
         playerScript.adjustMoney(-intBet);
         //resets each players hand
         playerScript.ResetHand();
-        dealerScript.ResetHand();
+        dealerScript.ResetDealerHand();
         //hides text that shouldn't be shown till hand is over
         mainText.gameObject.SetActive(false);
         dealerHandText.gameObject.SetActive(false);
         //shuffles deck and deals cards to each player
         GameObject.Find("Deck").GetComponent<DeckScript>().Shuffle();
         playerScript.StartHand();
-        dealerScript.StartHand();
+        dealerScript.StartDealerHand();
         //adds text for hand values of player's and dealer's hand
         handText.text = "Hand: " + playerScript.handValue.ToString();
-        dealerHandText.text = "Hand: " + dealerScript.handValue.ToString();
+        dealerHandText.text = "Hand: " + dealerScript.dealerHandValue.ToString();
         //hides or shows buttons/objects
         hideCard.GetComponent<Renderer>().enabled = true;
         dealButton.gameObject.SetActive(false);
@@ -74,6 +77,8 @@ public class GameManager : MonoBehaviour
         hitButton.gameObject.SetActive(true);
         standButton.gameObject.SetActive(true);
         doubleButton.gameObject.SetActive(true);
+        countButton.gameObject.SetActive(true);
+        countText.gameObject.SetActive(false);
         //edits text for the player's balance
         bankText.text = "$" + playerScript.getBalance().ToString();
         //decides whether the player should see the double button based on their current bet and balance
@@ -85,7 +90,7 @@ public class GameManager : MonoBehaviour
             doubleButton.gameObject.SetActive(false);
         }
         //ends the round immidiately if either player or dealer hits 21
-        if (dealerScript.handValue == 21 || playerScript.handValue == 21)
+        if (dealerScript.dealerHandValue == 21 || playerScript.handValue == 21)
         {
             RoundOver();
         }
@@ -153,10 +158,10 @@ public class GameManager : MonoBehaviour
     private void HitDealer()
     {
         //dealer hits on 16 and stands on 17
-        if (dealerScript.handValue < 17 && dealerScript.cardIndex < 11)
+        if (dealerScript.dealerHandValue < 17 && dealerScript.dealerCardIndex < 11)
         {
-            dealerScript.GetCard();
-            dealerHandText.text = "Hand: " + dealerScript.handValue.ToString();
+            dealerScript.GetDealerCard();
+            dealerHandText.text = "Hand: " + dealerScript.dealerHandValue.ToString();
         }
     }
 
@@ -165,11 +170,11 @@ public class GameManager : MonoBehaviour
     {
         //booleans for bust and 21
         bool playerBust = playerScript.handValue > 21;
-        bool dealerBust = dealerScript.handValue > 21;
+        bool dealerBust = dealerScript.dealerHandValue > 21;
         bool player21 = playerScript.handValue == 21;
-        bool dealer21 = dealerScript.handValue == 21;
+        bool dealer21 = dealerScript.dealerHandValue == 21;
         //final game decision. First checks for push, then player 21, then player win, finally dealer wins
-        if (playerScript.handValue == dealerScript.handValue)
+        if (playerScript.handValue == dealerScript.dealerHandValue)
         {
             playerScript.adjustMoney(intBet);
             mainText.text = "Push, bets returned";
@@ -177,7 +182,7 @@ public class GameManager : MonoBehaviour
         {
             playerScript.adjustMoney(intBet +((intBet * 3) / 2));
             mainText.text = "BlackJack";
-        } else if (!playerBust && (playerScript.handValue > dealerScript.handValue || dealerBust))
+        } else if (!playerBust && (playerScript.handValue > dealerScript.dealerHandValue || dealerBust))
         {
             playerScript.adjustMoney(intBet * 2);
             mainText.text = "Player Wins";
@@ -191,6 +196,7 @@ public class GameManager : MonoBehaviour
         doubleButton.gameObject.SetActive(false);
         betButton.gameObject.SetActive(true);
         shoveButton.gameObject.SetActive(true);
+        countButton.gameObject.SetActive(false);
         mainText.gameObject.SetActive(true);
         dealerHandText.gameObject.SetActive(true);
         hideCard.GetComponent<Renderer>().enabled = false;
@@ -204,6 +210,7 @@ public class GameManager : MonoBehaviour
             betButton.gameObject.SetActive(false);
             shoveButton.gameObject.SetActive(false);
         }
+        CountClicked();
     }
     //the function for when the bet button is clicked
     private void BetClicked()
@@ -245,7 +252,9 @@ public class GameManager : MonoBehaviour
 
     private void CountClicked()
     {
-        countText.text = DeckScript.cardCount.ToString();
+        cardCount = playerScript.getCardCount() + dealerScript.getDealerCardCount();
+        countText.text = cardCount.ToString();
         countText.gameObject.SetActive(true);
+        countButton.gameObject.SetActive(false);
     }
 }

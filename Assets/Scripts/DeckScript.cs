@@ -9,8 +9,6 @@ public class DeckScript : MonoBehaviour
     //array to hold all the card values
     int[] cardValues = new int[53];
     int currentIndex = 0;
-    //int to keep track of the card count
-    public static int cardCount = 0;
     
     //initializes card values on start of game
     void Start()
@@ -58,15 +56,6 @@ public class DeckScript : MonoBehaviour
         cardScript.SetValue(cardValues[currentIndex]);
         currentIndex++;
         return cardScript.GetValue();
-        //logic for counting cards
-        if (cardValues[currentIndex] == 1 || cardValues[currentIndex] > 9)
-        {
-            cardCount--;
-        } else if (cardValues[currentIndex] < 7)
-        {
-            cardCount++;
-        }
-
     }
 
     //function to get the sprite for the blank card
